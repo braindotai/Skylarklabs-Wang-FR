@@ -28,15 +28,22 @@ class Detection:
         blob = cv2.dnn.blobFromImage(img, 1, mean=(104, 117, 123))
         self.detector.setInput(blob, 'data')
         out = self.detector.forward('detection_out').squeeze()
-        max_conf_index = np.argmax(out[:, 2])
-        left, top, right, bottom = out[max_conf_index, 3]*width, out[max_conf_index, 4]*height, \
-                                   out[max_conf_index, 5]*width, out[max_conf_index, 6]*height
 
-        if right == left or bottom == top:
-            return None
+        bboxes = []
+        for i in range(out.shape[0]):
+            # conf_index = np.argmax(out[:, 2])
+            if out[i][2] < self.detector_confidence:
+                continue
 
-        bbox = [int(left), int(top), int(right-left+1), int(bottom-top+1)]
-        return bbox
+            left, top, right, bottom = out[i, 3]*width, out[i, 4]*height, out[i, 5]*width, out[i, 6]*height
+
+            if right == left or bottom == top:
+                continue
+
+            bbox = [int(left), int(top), int(right-left+1), int(bottom-top+1)]
+            bboxes.append(bbox)
+
+        return bboxes
 
     def check_face(self):
         pass
