@@ -1,10 +1,8 @@
-
 import sys
 import os
 import random
 import cv2
-import numpy as np
-from face_detect.test import Detection
+from face_detect.test import Detection, get_bbox
 from feature_api import load_model, get_feature_from_image, match_feature
 from tqdm import tqdm
 detector = Detection()
@@ -44,7 +42,7 @@ def enroll_images(src_dir):
     all_images = get_file_names(src_dir)
     for path in tqdm(all_images):
         image = cv2.imread(path)
-        bboxes = detector.get_bbox(image)
+        bboxes = get_bbox(image)
         for bbox in bboxes:
             feature_vec = get_feature_from_image(net, bbox, device, image)
 
@@ -75,7 +73,7 @@ def main():
     while True:
         flag, frame = cap.read()
         show_img = frame.copy()
-        bboxes = detector.get_bbox(frame)
+        bboxes = get_bbox(frame)
         for bbox in bboxes:
             feat2 = get_feature_from_image(net, bbox, device, frame)
 
