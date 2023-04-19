@@ -63,6 +63,7 @@ def main():
     enroll_dir = './datasets/Enroll'
     features = enroll_images(enroll_dir)
 
+    threshold = 0.5
     cv2.namedWindow("Face Recognition Demo")
     cap = cv2.VideoCapture("./datasets/office.mp4")
     while not cap.isOpened():
@@ -85,16 +86,19 @@ def main():
             for label in features.keys():
                 for feat1 in features[label]:
                     score = match_feature(feat1, feat2)
-                    if score > max_score:
+                    if score > max_score and score > threshold:
                         max_score = score
                         max_label = label
 
-            cv2.putText(show_img, f'{max_label} {max_score[0]:.02f}', (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
-                        0.7, (0, 255, 0), 2)
+            if max_label:
+                cv2.putText(show_img, f'{max_label} {max_score[0]:.02f}', (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
+                            0.7, (0, 255, 0), 2)
+
             cv2.rectangle(show_img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0), 3)
 
         if flag:
             # The frame is ready and already captured
+            scaled_image = cv2.resize(show_img, (int(show_img.shape[1] * 0.5), int(show_img.shape[0] * 0.5)))
             cv2.imshow('Face Recognition Demo', show_img)
         else:
             # It is better to wait for a while for the next frame to be ready
